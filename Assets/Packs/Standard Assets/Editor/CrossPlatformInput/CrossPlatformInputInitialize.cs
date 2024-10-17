@@ -1,18 +1,13 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.Build;
 
 namespace UnityStandardAssets.CrossPlatformInput.Inspector
 {
     [InitializeOnLoad]
     public class CrossPlatformInitialize
     {
-        // Custom compiler defines:
-        //
-        // CROSS_PLATFORM_INPUT : denotes that cross platform input package exists, so that other packages can use their CrossPlatformInput functions.
-        // EDITOR_MOBILE_INPUT : denotes that mobile input should be used in editor, if a mobile build target is selected. (i.e. using Unity Remote app).
-        // MOBILE_INPUT : denotes that mobile input should be used right now!
-
         static CrossPlatformInitialize()
         {
             var defines = GetDefinesList(buildTargetGroups[0]);
@@ -23,7 +18,6 @@ namespace UnityStandardAssets.CrossPlatformInput.Inspector
             }
         }
 
-
         [MenuItem("Mobile Input/Enable")]
         private static void Enable()
         {
@@ -32,7 +26,7 @@ namespace UnityStandardAssets.CrossPlatformInput.Inspector
             {
                 case BuildTarget.Android:
                 case BuildTarget.iOS:
-                case BuildTarget.WSAPlayer: 
+                case BuildTarget.WSAPlayer:
                     EditorUtility.DisplayDialog("Mobile Input",
                                                 "You have enabled Mobile Input. You'll need to use the Unity Remote app on a connected device to control your game in the Editor.",
                                                 "OK");
@@ -46,14 +40,12 @@ namespace UnityStandardAssets.CrossPlatformInput.Inspector
             }
         }
 
-
         [MenuItem("Mobile Input/Enable", true)]
         private static bool EnableValidate()
         {
             var defines = GetDefinesList(mobileBuildTargetGroups[0]);
             return !defines.Contains("MOBILE_INPUT");
         }
-
 
         [MenuItem("Mobile Input/Disable")]
         private static void Disable()
@@ -70,14 +62,12 @@ namespace UnityStandardAssets.CrossPlatformInput.Inspector
             }
         }
 
-
         [MenuItem("Mobile Input/Disable", true)]
         private static bool DisableValidate()
         {
             var defines = GetDefinesList(mobileBuildTargetGroups[0]);
             return defines.Contains("MOBILE_INPUT");
         }
-
 
         private static BuildTargetGroup[] buildTargetGroups = new BuildTargetGroup[]
             {
@@ -90,13 +80,11 @@ namespace UnityStandardAssets.CrossPlatformInput.Inspector
             {
                 BuildTargetGroup.Android,
                 BuildTargetGroup.iOS,
-                BuildTargetGroup.WSA 
+                BuildTargetGroup.WSA
             };
-
 
         private static void SetEnabled(string defineName, bool enable, bool mobile)
         {
-            //Debug.Log("setting "+defineName+" to "+enable);
             foreach (var group in mobile ? mobileBuildTargetGroups : buildTargetGroups)
             {
                 var defines = GetDefinesList(group);
@@ -114,20 +102,16 @@ namespace UnityStandardAssets.CrossPlatformInput.Inspector
                     {
                         return;
                     }
-                    while (defines.Contains(defineName))
-                    {
-                        defines.Remove(defineName);
-                    }
+                    defines.Remove(defineName);
                 }
                 string definesString = string.Join(";", defines.ToArray());
-                PlayerSettings.SetScriptingDefineSymbolsForGroup(group, definesString);
+                PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.FromBuildTargetGroup(group), definesString);
             }
         }
 
-
         private static List<string> GetDefinesList(BuildTargetGroup group)
         {
-            return new List<string>(PlayerSettings.GetScriptingDefineSymbolsForGroup(group).Split(';'));
+            return new List<string>(PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.FromBuildTargetGroup(group)).Split(';'));
         }
     }
 }

@@ -8,7 +8,8 @@ public class EventSystemChecker : MonoBehaviour
     // Use this for initialization
     void Awake()
     {
-        if (!FindObjectOfType<EventSystem>())
+        // Zmiana FindObjectOfType na FindFirstObjectByType
+        if (!FindFirstObjectByType<EventSystem>())
         {
             GameObject obj = new GameObject("EventSystem");
             obj.AddComponent<EventSystem>();
